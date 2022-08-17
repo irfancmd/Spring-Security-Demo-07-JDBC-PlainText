@@ -1,5 +1,8 @@
 package com.example.springsecurity.demo.config;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,16 +15,16 @@ import org.springframework.security.core.userdetails.User.UserBuilder;
 @EnableWebSecurity
 public class DemoSecurityConfig extends WebSecurityConfigurerAdapter{
 	
+	// Add reference to the security data source
+	@Autowired
+	DataSource securityDataSource;
+	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		// Add users for in memory authentication
-		UserBuilder users = User.withDefaultPasswordEncoder();
-
-		auth.inMemoryAuthentication()
-		.withUser(users.username("akkas").password("123").roles("EMPLOYEE"))
-		.withUser(users.username("abdul").password("123").roles("EMPLOYEE", "MANAGER"))
-		.withUser(users.username("Motin").password("123").roles("EMPLOYEE", "ADMIN"));
-
+		// Use JDBC authentication
+		// If our table schema follows the spring security convension, it will automatically deal with the
+		// database. We don't have to use any SQL code ourselves
+		auth.jdbcAuthentication().dataSource(securityDataSource);
 	}
 
 	@Override
